@@ -2,20 +2,57 @@
 set -euo pipefail
 
 HARVESTER_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SERVICE_FILE="$HARVESTER_DIR/mpk-harvester.service"
+TEMPLATE_FILE="$HARVESTER_DIR/mpk-harvester.service.template"
+GENERATED_FILE="$HARVESTER_DIR/mpk-harvester.service"
 SERVICE_LINK="/etc/systemd/system/mpk-harvester.service"
+SERVICE_NAME="mpk-harvester"
 
-echo "Setting up venv..."
+# --- guard: don't run this whole script as root/sudo ---
+if [ "$EUID" -eq 0 ]; then
+    echo "ERROR: don't run install.sh with sudo. Run it as your normal user;"
+    echo "it will call sudo internally only where needed."
+    exit 1
+fi
+
+# --- check prerequisites ---
+command -v docker >/dev/null 2>&1 || { echo "ERROR: docker not found. Install it first: sudo pacman -S docker docker-compose"; exit 1; }
+command -v python >/dev/null 2>&1 || { echo "ERROR: python not found."; exit 1; }
+systemctl is-active --quiet docker || { echo "ERROR: docker service not running. Run: sudo systemctl enable --now docker"; exit 1; }
+
+# --- stop/disable existing service if present ---
+if systemctl list-unit-files | grep -q "^${SERVICE_NAME}.service"; then
+    echo "Existing $SERVICE_NAME service found — stopping and disabling before reinstall..."
+    sudo systemctl stop "$SERVICE_NAME" 2>/dev/null || true
+    sudo systemctl disable "$SERVICE_NAME" 2>/dev/null || true
+    sudo rm -f "$SERVICE_LINK"
+    sudo systemctl daemon-reload
+    echo "Old service removed."
+fi
+
+echo "Setting up venv at $HARVESTER_DIR/.venv..."
 python -m venv "$HARVESTER_DIR/.venv"
+"$HARVESTER_DIR/.venv/bin/pip" install --upgrade pip
 "$HARVESTER_DIR/.venv/bin/pip" install -r "$HARVESTER_DIR/requirements.txt"
 
 echo "Starting postgres..."
 docker compose -f "$HARVESTER_DIR/docker-compose.yml" up -d
 
-echo "Linking systemd unit..."
-sudo ln -sf "$SERVICE_FILE" "$SERVICE_LINK"
-sudo systemctl daemon-reload
-sudo systemctl enable --now mpk-harvester
+echo "Generating systemd unit for user '$USER' at $HARVESTER_DIR..."
+sed -e "s|__USER__|$USER|g" \
+    -e "s|__HARVESTER_DIR__|$HARVESTER_DIR|g" \
+    "$TEMPLATE_FILE" > "$GENERATED_FILE"
 
-echo "Done. Check status with: systemctl status mpk-harvester"
-echo "Logs: journalctl -u mpk-harvester -f"
+echo "Linking systemd unit..."
+sudo ln -sf "$GENERATED_FILE" "$SERVICE_LINK"
+sudo systemctl daemon-reload
+sudo systemctl enable --now "$SERVICE_NAME"
+
+echo ""
+echo "Done. Verifying..."
+sleep 2
+if systemctl is-active --quiet "$SERVICE_NAME"; then
+    echo "✔ $SERVICE_NAME is running"
+else
+    echo "✘ $SERVICE_NAME failed to start — check: journalctl -u $SERVICE_NAME -n 50"
+    exit 1
+fi

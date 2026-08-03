@@ -5,8 +5,9 @@ Wants=network-online.target
 
 [Service]
 Type=simple
-WorkingDirectory=%h/harvester
-ExecStart=%h/harvester/.venv/bin/python scheduler.py
+User=__USER__
+WorkingDirectory=__HARVESTER_DIR__
+ExecStart=__HARVESTER_DIR__/.venv/bin/python scheduler.py
 Restart=on-failure
 RestartSec=30
 Environment=DATABASE_URL=postgresql://mpk:mpk@localhost:5432/mpk_harvester

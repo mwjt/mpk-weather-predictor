@@ -33,3 +33,6 @@ data/models/
 
 # Jupyter
 .ipynb_checkpoints/
+
+# generated, machine-specific
+harvester/mpk-harvester.service
