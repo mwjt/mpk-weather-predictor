@@ -8,7 +8,7 @@ from gtfs_client import get_latest_file_id, download_gtfs_zip
 from gtfs_loader import load_gtfs_zip
 from db.session import SessionLocal, engine, DATABASE_URL
 from db.models import Base, VehiclePosition, WeatherSnapshot, GtfsMeta
-from datetime import datetime as dt
+from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
 
@@ -47,7 +47,7 @@ async def poll_gtfs():
 
         with SessionLocal() as session:
             session.query(GtfsMeta).delete()
-            session.add(GtfsMeta(file_id=latest_id, loaded_at=dt.now(timezone.utc)))
+            session.add(GtfsMeta(file_id=latest_id, loaded_at=datetime.now(timezone.utc)))
             session.commit()
 
         os.remove(tmp_zip)
@@ -90,7 +90,7 @@ async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(poll_vehicles, "interval", seconds=60)
     scheduler.add_job(poll_weather, "interval", minutes=15)
-    scheduler.add_job(poll_gtfs, "interval", hours=24, next_run_time=dt.now())
+    scheduler.add_job(poll_gtfs, "interval", hours=24, next_run_time=datetime.now())
     scheduler.start()
     log.info("scheduler started")
     await asyncio.Event().wait()  # run forever
