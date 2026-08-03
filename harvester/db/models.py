@@ -5,13 +5,16 @@ Base = declarative_base()
 
 class VehiclePosition(Base):
     __tablename__ = "vehicle_positions"
+    __table_args__ = (
+        {"postgresql_partition_by": "RANGE (fetched_at)"},
+    )
     id = Column(Integer, primary_key=True)
     line_name = Column(String)
-    vehicle_type = Column(String)  # "tram" / "bus"
+    vehicle_type = Column(String)
     lat = Column(Float)
     lon = Column(Float)
     raw_k = Column(BigInteger)  # MPK's internal marker, unclear semantics, store raw
-    fetched_at = Column(DateTime(timezone=True), index=True)
+    fetched_at = Column(DateTime(timezone=True), primary_key=True, index=True)  # must be part of PK for partitioning
 
 class WeatherSnapshot(Base):
     __tablename__ = "weather_snapshots"

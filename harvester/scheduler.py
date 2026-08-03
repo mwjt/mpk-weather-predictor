@@ -8,6 +8,7 @@ from gtfs_client import get_latest_file_id, download_gtfs_zip
 from gtfs_loader import load_gtfs_zip
 from db.session import SessionLocal, engine, DATABASE_URL
 from db.models import Base, VehiclePosition, WeatherSnapshot, GtfsMeta
+from db.partitioning import ensure_upcoming_partitions
 from datetime import datetime, timezone
 from logging.handlers import RotatingFileHandler
 from pathlib import Path
@@ -28,6 +29,8 @@ console_handler.setFormatter(formatter)
 
 logging.basicConfig(level=logging.INFO, handlers=[file_handler, console_handler])
 log = logging.getLogger("harvester")
+
+ensure_upcoming_partitions()
 
 Base.metadata.create_all(engine)
 
@@ -88,6 +91,7 @@ async def poll_weather():
 
 async def main():
     scheduler = AsyncIOScheduler()
+    scheduler.add_job(ensure_upcoming_partitions, "interval", hours=24)
     scheduler.add_job(poll_vehicles, "interval", seconds=60)
     scheduler.add_job(poll_weather, "interval", minutes=15)
     scheduler.add_job(poll_gtfs, "interval", hours=24, next_run_time=datetime.now())
