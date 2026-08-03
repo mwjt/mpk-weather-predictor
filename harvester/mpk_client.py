@@ -11,7 +11,7 @@ async def fetch_vehicle_positions(lines: list[str] = TRACKED_LINES) -> list[dict
     MPK's endpoint wants form-encoded busList[][]=<line> repeated per line.
     Returns list of {name, type, x (lat), y (lon), k} per vehicle.
     """
-    data = [("busList[][]", line) for line in lines]
+    data = {"busList[][]": lines}
     async with httpx.AsyncClient(verify=False, timeout=10) as client:
         resp = await client.post(MPK_URL, data=data)
         resp.raise_for_status()
