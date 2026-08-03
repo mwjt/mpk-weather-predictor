@@ -4,6 +4,8 @@ import os
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from mpk_client import fetch_vehicle_positions
 from weather_client import fetch_weather
+from gtfs_client import get_latest_file_id, download_gtfs_zip
+from gtfs_loader import load_gtfs_zip
 from db.session import SessionLocal, engine, DATABASE_URL
 from db.models import Base, VehiclePosition, WeatherSnapshot, GtfsMeta
 from datetime import datetime as dt
