@@ -47,7 +47,7 @@ async def poll_gtfs():
 
         with SessionLocal() as session:
             session.query(GtfsMeta).delete()
-            session.add(GtfsMeta(file_id=latest_id, loaded_at=datetime.now(timezone.utc)))
+            session.add(GtfsMeta(file_id=latest_id, loaded_at=dt.now(timezone.utc)))
             session.commit()
 
         os.remove(tmp_zip)
