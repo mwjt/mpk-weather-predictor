@@ -13,6 +13,7 @@ if [ "$EUID" -eq 0 ]; then
     exit 1
 fi
 
+# --- check prerequisites ---
 command -v docker >/dev/null 2>&1 || { echo "ERROR: docker not found. Install it first: sudo pacman -S docker docker-compose"; exit 1; }
 command -v python >/dev/null 2>&1 || { echo "ERROR: python not found."; exit 1; }
 systemctl is-active --quiet docker || { echo "ERROR: docker service not running. Run: sudo systemctl enable --now docker"; exit 1; }
@@ -48,7 +49,9 @@ sed -e "s|__USER__|$USER|g" \
 echo "Linking systemd unit..."
 sudo ln -sf "$GENERATED_FILE" "$SERVICE_LINK"
 sudo systemctl daemon-reload
-sudo systemctl enable --now "$SERVICE_NAME"
+sudo systemctl enable "$SERVICE_NAME"
+sudo systemctl stop "$SERVICE_NAME" 2>/dev/null || true
+sudo systemctl start "$SERVICE_NAME"
 
 echo ""
 echo "Done. Verifying..."
