@@ -1,0 +1,15 @@
+[Unit]
+Description=MPK/Weather Data Harvester
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=%h/harvester
+ExecStart=%h/harvester/.venv/bin/python scheduler.py
+Restart=on-failure
+RestartSec=30
+Environment=DATABASE_URL=postgresql://mpk:mpk@localhost:5432/mpk_harvester
+
+[Install]
+WantedBy=multi-user.target

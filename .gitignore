@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.venv/
+venv/
+.Python
+
+# Env / secrets
+.env
+.env.local
+
+# Docker
+pgdata/
+
+# Logs
+*.log
+logs/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+
+# Data artifacts (don't commit raw dumps or trained models)
+data/raw/
+data/models/
+*.pkl
+*.joblib
+
+# Jupyter
+.ipynb_checkpoints/
