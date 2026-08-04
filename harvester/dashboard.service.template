@@ -1,0 +1,16 @@
+[Unit]
+Description=MPK Harvester Dashboard
+After=network-online.target mpk-harvester.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=__USER__
+WorkingDirectory=__HARVESTER_DIR__
+ExecStart=__HARVESTER_DIR__/.venv/bin/uvicorn dashboard:app --host 0.0.0.0 --port 8080
+Restart=on-failure
+RestartSec=10
+Environment=DATABASE_URL=postgresql://mpk:mpk@localhost:5432/mpk_harvester
+
+[Install]
+WantedBy=multi-user.target

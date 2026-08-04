@@ -36,3 +36,5 @@ data/models/
 
 # generated, machine-specific
 harvester/mpk-harvester.service
+harvester/dashboard.service
+harvester/.reader_password
