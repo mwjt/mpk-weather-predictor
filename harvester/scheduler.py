@@ -30,9 +30,8 @@ console_handler.setFormatter(formatter)
 logging.basicConfig(level=logging.INFO, handlers=[file_handler, console_handler])
 log = logging.getLogger("harvester")
 
-ensure_upcoming_partitions()
-
 Base.metadata.create_all(engine)
+ensure_upcoming_partitions()
 
 async def poll_gtfs():
     try:
