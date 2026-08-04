@@ -1,10 +1,8 @@
-DO $$
-BEGIN
-    IF NOT EXISTS (SELECT FROM pg_catalog.pg_roles WHERE rolname = 'reader') THEN
-        CREATE USER reader WITH PASSWORD :'reader_password';
-    END IF;
-END
-$$;
+SELECT 'CREATE USER reader' WHERE NOT EXISTS (
+    SELECT FROM pg_catalog.pg_roles WHERE rolname = 'reader'
+)\gexec
+
+ALTER USER reader WITH PASSWORD :'reader_password';
 
 GRANT CONNECT ON DATABASE mpk_harvester TO reader;
 GRANT USAGE ON SCHEMA public TO reader;

@@ -2,3 +2,5 @@ httpx
 sqlalchemy
 psycopg2-binary
 apscheduler
+fastapi
+uvicorn

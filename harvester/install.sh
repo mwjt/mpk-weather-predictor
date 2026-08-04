@@ -111,4 +111,5 @@ sudo systemctl enable mpk-dashboard
 sudo systemctl stop mpk-dashboard 2>/dev/null || true
 sudo systemctl start mpk-dashboard
 
-echo "Dashboard available at: http://$(hostname -I | awk '{print $1}'):8080 (or via Tailscale IP)"
+TAILSCALE_IP=$(tailscale ip -4 2>/dev/null || echo "<check tailscale ip -4>")
+echo "Dashboard available at: http://$TAILSCALE_IP:8080"
