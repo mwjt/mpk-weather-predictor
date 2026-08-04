@@ -91,8 +91,8 @@ async def poll_weather():
 async def main():
     scheduler = AsyncIOScheduler()
     scheduler.add_job(ensure_upcoming_partitions, "interval", hours=24)
-    scheduler.add_job(poll_vehicles, "interval", seconds=60)
-    scheduler.add_job(poll_weather, "interval", minutes=15)
+    scheduler.add_job(poll_vehicles, "interval", seconds=60, next_run_time=datetime.now())
+    scheduler.add_job(poll_weather, "interval", minutes=15, next_run_time=datetime.now())
     scheduler.add_job(poll_gtfs, "interval", hours=24, next_run_time=datetime.now())
     scheduler.start()
     log.info("scheduler started")

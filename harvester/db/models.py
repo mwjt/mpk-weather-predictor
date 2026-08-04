@@ -20,6 +20,7 @@ class WeatherSnapshot(Base):
     __tablename__ = "weather_snapshots"
     id = Column(Integer, primary_key=True)
     station_id = Column(String)
+    station_name = Column(String)
     temperature_c = Column(Float)
     wind_speed = Column(Float)
     wind_direction = Column(Float)
