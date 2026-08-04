@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, DateTime, BigInteger
+from sqlalchemy import Column, Integer, String, Float, DateTime, BigInteger, Identity
 from sqlalchemy.orm import declarative_base
 
 Base = declarative_base()
@@ -8,7 +8,7 @@ class VehiclePosition(Base):
     __table_args__ = (
         {"postgresql_partition_by": "RANGE (fetched_at)"},
     )
-    id = Column(Integer, primary_key=True)
+    id = Column(Integer, Identity(), primary_key=True)
     line_name = Column(String)
     vehicle_type = Column(String)
     lat = Column(Float)
